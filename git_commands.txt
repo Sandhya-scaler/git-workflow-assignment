@@ -221,3 +221,71 @@ git status --ignored
 
 git status
     The normal status: the ignored files are hidden, as expected.
+
+
+------------------------------------------------------------
+STEP 4: UNDO OPERATION WITH GIT REVERT
+------------------------------------------------------------
+
+git branch --show-current
+git status
+git log --oneline --graph --all
+git branch
+    Checked the starting point: on main, only .gitignore and git_commands.txt
+    untracked, four commits, and both branches (main and feature) present.
+
+git add .gitignore git_commands.txt
+    Stages .gitignore and this notes file by name, so nothing else is included.
+
+git status
+    Confirmed only those two files were staged.
+
+git commit -m "Add .gitignore and Git command documentation"
+    Saves .gitignore and the notes in the history.
+
+git ls-files
+    Lists every file Git is tracking. No .log files or temp/ files were in the list,
+    which proves the ignored files were not committed.
+
+(A footer was then added to index.html; this is the change that will be undone.)
+
+git diff
+    Shows the 4 added footer lines.
+
+git add index.html
+git commit -m "Add footer to homepage"
+    Stages and commits the footer. This is the "additional commit" to be undone.
+
+git log --oneline -3
+    Shows only the 3 most recent commits; the footer commit is at the top.
+
+git revert HEAD --no-edit
+    Undoes the latest commit (HEAD) by creating a NEW commit that does the opposite
+    (here: removes the footer). History is kept, so this is safe to push to GitHub.
+    "--no-edit" uses Git's default message "Revert ..." without opening an editor.
+
+git status
+    Showed "working tree clean": the revert was committed automatically.
+
+git log --oneline
+    Shows both the footer commit and the new revert commit in the history.
+
+git show --stat HEAD
+    Shows details of the latest commit (the revert): author, message
+    ("This reverts commit c83eeaa...") and that 4 lines were removed from index.html.
+
+git diff 6e2dd04 HEAD -- index.html
+    Compares index.html between the commit before the footer and now.
+    No output means they are identical: the footer change was fully undone.
+
+
+------------------------------------------------------------
+GITHUB CLI CHECK
+------------------------------------------------------------
+
+gh --version
+    Shows the installed version of the GitHub CLI tool ("gh").
+
+gh auth status
+    Shows whether the GitHub CLI is logged in. It reported "not logged in",
+    so authentication was needed before creating the GitHub repository.
