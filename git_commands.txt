@@ -1,0 +1,223 @@
+GIT COMMANDS USED IN THIS ASSIGNMENT
+====================================
+Every Git command below was actually run, listed in the order it was executed.
+Each command has a short explanation of what it does.
+
+
+------------------------------------------------------------
+PART 0: CHECKING THE TOOLS
+------------------------------------------------------------
+
+git --version
+    Shows which version of Git is installed. Used to confirm Git is available.
+
+git config --global user.name
+    Shows the author name Git uses by default for all projects on this computer.
+
+git config --global user.email
+    Shows the default author email for all projects (only read, not changed).
+
+git config --global init.defaultBranch
+    Shows the default name for the first branch of new repositories.
+    Nothing was set, so the branch name was given directly in "git init -b main".
+
+
+------------------------------------------------------------
+STEP 1: LOCAL REPOSITORY SETUP
+------------------------------------------------------------
+
+git init -b main
+    Turns the current folder into a Git repository (creates a hidden .git folder).
+    "-b main" names the first branch "main".
+
+git status
+    Shows the state of the project: which files are new, changed, or staged.
+    Here it showed index.html and about.html as "Untracked" (not saved in Git yet).
+
+git branch --show-current
+    Prints the name of the branch we are currently on (it printed "main").
+
+
+------------------------------------------------------------
+STEP 2: GIT WORKFLOW (FIRST TWO COMMITS)
+------------------------------------------------------------
+
+git status
+    Checked the project state again before starting. Both HTML files were untracked.
+
+git config user.name "Sandhya"
+    Sets the author name for THIS repository only (no --global),
+    so other projects on the computer are not affected.
+
+git config --local --list
+    Lists all settings saved for this repository only, to confirm the name was set.
+
+git config --global user.name
+    Checked that the global (computer-wide) name was not changed.
+
+git config user.email "180416459+Sandhya-scaler@users.noreply.github.com"
+    Sets the author email for THIS repository only. A GitHub "noreply" email
+    links commits to the GitHub account without showing a private email address.
+
+git config user.name
+git config user.email
+    Show the name and email Git will use for commits in this repository.
+
+git config --show-origin user.name
+git config --show-origin user.email
+    Show WHERE each setting comes from. Both came from ".git/config",
+    which proves they are repository-only settings.
+
+git config --global user.email
+    Checked that the global email was not changed.
+
+git add index.html about.html
+    Puts the two files into the "staging area", the list of changes
+    that will go into the next commit.
+
+git status
+    Confirmed both files were staged ("Changes to be committed").
+
+git commit -m "Initial project setup"
+    Saves the staged files as the first snapshot (commit) in the history.
+    "-m" adds a message describing the commit.
+
+git log
+    Shows the commit history: commit ID, author, date and message.
+
+git status
+    After editing index.html, showed it as "modified" but not yet staged.
+
+git diff
+    Shows exactly which lines changed in index.html compared with the last commit.
+    Lines starting with "+" were added.
+
+git add index.html
+    Stages the modified homepage so it can be committed.
+
+git commit -m "Update homepage content"
+    Creates the second commit with the homepage improvement.
+
+git log
+    Shows the full history, now containing two commits.
+
+git log --oneline
+    Shows the history in a short form: one line per commit.
+
+git log --format='%h | %an <%ae> | %s'
+    Shows each commit's short ID, author name, author email and message,
+    to verify the correct author was used.
+
+git log --format='%(trailers)'
+    Shows any extra lines at the end of commit messages (such as "Co-Authored-By").
+    The output was empty, so no co-author was added.
+
+git status
+    Confirmed "nothing to commit, working tree clean": every change is saved.
+
+git status --short
+    A compact version of git status. "??" means a file is untracked
+    (here: git_commands.txt, which will be committed later).
+
+git branch
+    Lists all branches. The "*" marks the current branch (only "main" so far).
+
+
+------------------------------------------------------------
+STEP 2 (continued): BRANCHING AND MERGING
+------------------------------------------------------------
+
+git status
+    Checked that there were no uncommitted changes before branching
+    (only the untracked notes file git_commands.txt, which is expected).
+
+git branch feature
+    Creates a new branch named "feature" starting from the current commit.
+    A branch is a separate line of work that does not affect main.
+
+git branch
+    Lists the branches to confirm "feature" was created.
+
+git switch feature
+    Moves to the "feature" branch. New commits will now go to this branch.
+
+git branch --show-current
+    Confirms that the current branch is "feature".
+
+git diff
+    Shows the new "Purpose of This Project" section added to about.html.
+
+git add about.html
+    Stages the modified About page.
+
+git commit -m "Add project information to about page"
+    Creates a commit on the feature branch only. Main does not have it yet.
+
+git log --oneline
+    Shows the feature branch history: the two main commits plus the new one.
+
+git log main..feature --oneline
+    Shows commits that are on "feature" but not on "main".
+    It listed only the new commit, proving the feature branch has its own work.
+
+git switch main
+    Moves back to the main branch. about.html returns to the main version
+    (without the new section), because main does not have that commit yet.
+
+git branch --show-current
+    Confirms that the current branch is "main".
+
+git merge --no-ff feature -m "Merge feature branch into main"
+    Brings the work from "feature" into "main".
+    "--no-ff" (no fast-forward) always creates a merge commit, so the history
+    clearly shows that a separate branch was created and then joined back.
+
+git log --oneline --graph --all
+    Draws the history of ALL branches as a graph, showing where "feature"
+    split off from main and where it was merged back.
+
+git branch --merged main
+    Lists the branches whose work is already included in main.
+    "feature" appears, which confirms the merge was successful.
+
+git log --format='%h | %an <%ae> | %s'
+    Verifies that every commit, including the merge commit, is authored by Sandhya.
+
+git log --format='%(trailers)'
+    Checks for extra lines such as "Co-Authored-By". None were found.
+
+git status
+    Confirms main has no uncommitted changes after the merge.
+
+
+------------------------------------------------------------
+STEP 3: .GITIGNORE
+------------------------------------------------------------
+
+git branch --show-current
+    Confirmed we are on the "main" branch before starting.
+
+git status
+    Checked the project state before creating .gitignore.
+
+(The .gitignore file was then created with two rules: "*.log" and "temp/".
+ Sample files debug.log, error.log and temp/sample.txt were created for testing.)
+
+git status --short
+    Compact status. Only .gitignore and git_commands.txt appeared as untracked ("??").
+    The .log files and temp/ folder did NOT appear, because they are ignored.
+
+git check-ignore -v debug.log error.log temp/sample.txt
+    Asks Git whether these files are ignored. "-v" also shows WHICH rule matched,
+    e.g. ".gitignore:2:*.log  debug.log" means line 2 of .gitignore ignores it.
+
+git check-ignore -v .gitignore
+    Checked that .gitignore itself is NOT ignored. It printed nothing (exit code 1),
+    which means .gitignore will be committed normally.
+
+git status --ignored
+    Shows the normal status PLUS a list of ignored files. It listed debug.log,
+    error.log and temp/ under "Ignored files", proving Git sees them but skips them.
+
+git status
+    The normal status: the ignored files are hidden, as expected.
