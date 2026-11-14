@@ -289,3 +289,141 @@ gh --version
 gh auth status
     Shows whether the GitHub CLI is logged in. It reported "not logged in",
     so authentication was needed before creating the GitHub repository.
+
+
+------------------------------------------------------------
+SAVING THE TEST CASES (QUESTION 2)
+------------------------------------------------------------
+
+git clone -q <project folder> <scratch folder>
+    Made a temporary copy of the repository in a scratch folder (outside the project)
+    only to test the PDF layout before the GitHub repository existed.
+    "-q" means quiet. The copy is not part of the submission.
+
+git add test_cases.md git_commands.txt
+    Stages the new test case file and the updated notes.
+
+git status --short
+    "A" = newly added file, "M" = modified file. Both were staged.
+
+git commit -m "Add login system test cases and update command documentation"
+    Saves the test cases and notes in the history.
+
+git log --oneline -3
+git status
+    Confirmed the new commit is on top and the working tree is clean.
+
+
+------------------------------------------------------------
+STEP 5: GITHUB INTEGRATION
+------------------------------------------------------------
+
+gh auth login
+    (Run by the student.) Logs the GitHub CLI in to the GitHub account through the
+    web browser, and lets Git use the same login for pushing.
+
+gh auth status
+    Confirmed the CLI is logged in as Sandhya-scaler.
+
+gh api user --jq '"login=\(.login) id=\(.id)"'
+    Asks GitHub for the logged-in account's username and ID (id 180416459,
+    which matches the number in the commit email).
+
+gh repo view Sandhya-scaler/git-workflow-assignment --json url
+    Checked whether a repository with this name already existed. It did not.
+
+git ls-files
+git log --all --pretty=format: --name-only
+    Lists the files that will be pushed, and every file ever committed on any branch.
+
+git log --all -p
+    Shows every change in every commit on all branches. Its output was searched for
+    tokens, keys, passwords and email addresses before publishing. Nothing sensitive
+    was found; the only email is the public GitHub noreply address.
+
+git log --all --format='%ae%n%ce'
+    Lists the author and committer email of every commit (only the noreply address).
+
+git grep -n -i 'password' -- . ':!test_cases.md' ':!git_commands.txt'
+    Searches the tracked files for the word "password" (excluding the test case
+    file, where it is sample test data). No matches.
+
+gh repo create Sandhya-scaler/git-workflow-assignment --public --description "..."
+    Creates a new, empty PUBLIC repository on GitHub. It was created only after the
+    local repository already had its full history.
+
+git remote add origin https://github.com/Sandhya-scaler/git-workflow-assignment.git
+    Connects the local repository to GitHub. "origin" is the usual short name
+    for the main remote (online) copy.
+
+git remote -v
+    Shows the saved remote address for fetching and pushing.
+
+git push -u origin main feature
+    Uploads both branches and all their commits to GitHub (no force push).
+    "-u" links each local branch to its GitHub branch, so later a plain
+    "git push" knows where to send changes.
+
+gh repo view Sandhya-scaler/git-workflow-assignment --json url,visibility,isPrivate,defaultBranchRef
+    Confirmed on GitHub: visibility PUBLIC, default branch main.
+
+gh api repos/Sandhya-scaler/git-workflow-assignment/branches
+    Lists the branches stored on GitHub: main and feature, with the same
+    latest commits as the local branches.
+
+git rev-parse --short main feature
+    Tried to print both branch IDs at once; this failed with "Needed a single
+    revision" because --short accepts only one name. Fixed by running it twice:
+
+git rev-parse --short main
+git rev-parse --short feature
+    Print the short ID of the latest commit on each local branch.
+
+git branch -vv
+    Lists local branches with their linked GitHub branch (origin/main,
+    origin/feature) and shows that they are in sync.
+
+gh api "repos/Sandhya-scaler/git-workflow-assignment/commits?sha=main&per_page=50"
+gh api "repos/Sandhya-scaler/git-workflow-assignment/commits?sha=feature"
+    Read the commit history from GitHub. It matches the local history exactly,
+    and every commit is authored by Sandhya and linked to account Sandhya-scaler.
+
+gh api repos/Sandhya-scaler/git-workflow-assignment/contents
+    Lists the files on GitHub: no .log files and no temp/ folder were uploaded.
+
+(The repository was also opened without logging in, using curl: the web page
+ returned HTTP 200 and GitHub's public API reported "private = False",
+ which proves anyone can view it.)
+
+
+------------------------------------------------------------
+FINAL COMMIT, PUSH AND PDF
+------------------------------------------------------------
+Note: this file is itself part of the final commit below, so the following
+commands were written here just before they were run, exactly as listed.
+
+git add git_commands.txt
+git commit -m "Document GitHub integration commands"
+    Saves this completed command documentation.
+
+git push
+    Uploads the new commit to GitHub. Because of "-u" earlier, Git already knows
+    to push main to origin/main. No force push.
+
+git status
+git log --oneline --graph --all
+    Final check: working tree clean (except the untracked PDF), and the full
+    history including the branch, merge and revert.
+
+The PDF generator script (Python + ReportLab) ran these read-only commands
+to copy the REAL repository information into Assignment_Submission.pdf:
+
+git remote get-url origin
+    Gets the GitHub URL printed in the PDF.
+
+git log --oneline --graph --all
+git log --format=%h|%an|%s
+    Get the commit graph and the list of commits with their authors.
+
+git check-ignore -v debug.log error.log temp/sample.txt
+    Gets the .gitignore proof shown in the PDF.
